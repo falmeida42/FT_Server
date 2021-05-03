@@ -1,8 +1,31 @@
+#------ OS DO SERVIDOR ---------------------------------------------------
 FROM debian:buster
+#-------------------------------------------------------------------------
 
+#------ INSTALANDO AS DEPENDÊNCIAS ---------------------------------------
 RUN apt-get update
 RUN apt-get upgrade -y
-
+RUN apt-get install sysvinit-utils
 RUN apt-get -y install wget
 
+RUN apt-get -y install mariadb-server
+
+RUN apt-get -y install php-cgi php-common php-fpm php-pear php-mbstring
+RUN apt-get -y install php-zip php-net-socket php-gd php-xml-util php-gettext php-mysql php-bcmath
+#-------------------------------------------------------------------------
+
+#------ INSTALANDO E CONFIGURANDO O NGINX --------------------------------
 RUN apt-get -y install nginx
+
+RUN mkdir /var/www/localhost
+COPY srcs/localhost /etc/nginx/sites-available
+
+RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
+
+WORKDIR /var/www/localhost/
+#-------------------------------------------------------------------------
+
+#------ ADICIONANDO O PROTOCOLO SSL --------------------------------------
+RUN openssl req -x509 -nodes -days 30 -subj "/C=PT/ST=Portugal/L=Lisbon/O=42 Network/CN=falmeida" -newkey rsa:2048 -keyout /etc/ssl/nginx-selfsigned.key -out /etc/ssl/nginx-selfsigned.crt;
+#-------------------------------------------------------------------------
+
