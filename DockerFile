@@ -35,9 +35,9 @@ RUN tar -xf phpMyAdmin-5.1.0-english.tar.gz && rm -rf phpMyAdmin-5.1.0-english.t
 RUN mv phpMyAdmin-5.1.0-english phpmyadmin
 COPY ./srcs/config.inc.php phpmyadmin
 
-COPY ./srcs/start.sh ./
+COPY ./srcs/start.sh /tmp/
 
-CMD bash start.sh
+CMD bash /tmp/start.sh
 #-------------------------------------------------------------------------
 
 #------ INSTALANDO E CONFIGURANDO O WORDPRESS ----------------------------
