@@ -18,7 +18,7 @@ RUN apt-get -y install php-zip php-net-socket php-gd php-xml-util php-gettext ph
 RUN apt-get -y install nginx
 
 RUN mkdir /var/www/localhost
-COPY srcs/localhost /etc/nginx/sites-available
+COPY ./srcs/localhost /etc/nginx/sites-available
 
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
 
@@ -26,6 +26,26 @@ WORKDIR /var/www/localhost/
 #-------------------------------------------------------------------------
 
 #------ ADICIONANDO O PROTOCOLO SSL --------------------------------------
-RUN openssl req -x509 -nodes -days 30 -subj "/C=PT/ST=Portugal/L=Lisbon/O=42 Network/CN=falmeida" -newkey rsa:2048 -keyout /etc/ssl/nginx-selfsigned.key -out /etc/ssl/nginx-selfsigned.crt;
+RUN openssl req -x509 -sha256 -nodes -days 30 -subj "/C=PT/ST=Portugal/L=Lisbon/O=42 Network/CN=falmeida" -newkey rsa:2048 -keyout /etc/ssl/nginx-selfsigned.key -out /etc/ssl/nginx-selfsigned.crt;
 #-------------------------------------------------------------------------
 
+#------ INSTALANDO E CONFIGURANDO O PHP MY ADMIN -------------------------
+RUN wget https://files.phpmyadmin.net/phpMyAdmin/5.1.0/phpMyAdmin-5.1.0-english.tar.gz
+RUN tar -xf phpMyAdmin-5.1.0-english.tar.gz && rm -rf phpMyAdmin-5.1.0-english.tar.gz
+RUN mv phpMyAdmin-5.1.0-english phpmyadmin
+COPY ./srcs/config.inc.php phpmyadmin
+
+COPY ./srcs/start.sh ./
+
+CMD bash start.sh
+#-------------------------------------------------------------------------
+
+#------ INSTALANDO E CONFIGURANDO O WORDPRESS ----------------------------
+RUN wget https://wordpress.org/latest.tar.gz
+RUN tar -xvzf latest.tar.gz && rm -rf latest.tar.gz
+
+COPY ./srcs/wp-config.php /var/www/localhost/wordpress
+
+RUN chown -R www-data:www-data *
+RUN chmod -R 755 /var/www/*
+#-------------------------------------------------------------------------
